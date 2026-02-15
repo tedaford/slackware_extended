@@ -73,3 +73,4 @@ echo "Mirror sync completed successfully!"
 echo "============================================"
 echo "Mirror location: ${LOCAL_MIRROR_DIR}"
 echo "Size: $(du -sh ${LOCAL_MIRROR_DIR} | cut -f1)"
+

@@ -84,3 +84,4 @@ echo "Extra packages setup complete!"
 echo "============================================"
 echo "Packages location: ${EXTRA_PACKAGES_DIR}"
 echo "Mirror extra: ${MIRROR_DIR}/extra"
+
