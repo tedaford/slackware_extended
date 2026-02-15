@@ -1,0 +1,43 @@
+# Slackware Mirror Files
+mirror/
+slackware64-current/
+*.iso
+*.txz
+*.tgz
+*.tbz
+*.tlz
+*.md5
+*.asc
+*.txt.gz
+*.log
+
+# Package files
+*.rpm
+*.deb
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Build artifacts
+build/
+dist/
+*.o
+*.so
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
