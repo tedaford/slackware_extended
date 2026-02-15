@@ -14,11 +14,11 @@ on:
 jobs:
   build-iso:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Free up disk space
       run: |
         # Remove unnecessary packages to free up space
@@ -27,32 +27,32 @@ jobs:
         sudo rm -rf /opt/ghc
         sudo rm -rf /usr/local/lib/android
         df -h
-        
+
     - name: Install ISO creation tools
       run: |
         sudo apt-get update
         sudo apt-get install -y xorriso genisoimage rsync squashfs-tools
-        
+
     - name: Sync minimal mirror for ISO
       run: |
         echo "Syncing core packages for ISO..."
         mkdir -p iso-work/slackware64
         # For ISO creation, we'll use a minimal sync approach
         # In production, you would sync the packages needed for installation
-        
+
     - name: Download Slackware installer files
       run: |
         echo "Downloading Slackware installer components..."
         mkdir -p iso-work/isolinux
         mkdir -p iso-work/kernels
-        
+
         # Download isolinux bootloader and kernel
         MIRROR="https://mirrors.slackware.com/slackware/slackware64-current"
-        
-        # Note: In a real scenario, you would download the actual installer files
+
+        # Note: In a real scenario, you would download installer files
         # This is a placeholder showing the structure
         echo "Slackware Extended" > iso-work/isolinux/message.txt
-        
+
     - name: Add extra packages to ISO
       run: |
         echo "Adding extra packages..."
@@ -60,47 +60,48 @@ jobs:
         # Copy extra packages to ISO work directory
         mkdir -p iso-work/extra
         cp -r extra-packages/*.t?z iso-work/extra/ 2>/dev/null || true
-        
+
     - name: Create ISO structure
       run: |
         echo "Creating ISO structure..."
-        
+
         # Create README for ISO
         cat > iso-work/README.TXT << 'EOF'
-Slackware Extended - Current x86_64
+        Slackware Extended - Current x86_64
 
-This is an extended version of Slackware-current with additional packages:
-- sbotools: SlackBuilds.org package management
-- slackpkg+: Enhanced package manager with third-party repo support
+        This is an extended version of Slackware-current with
+        additional packages:
+        - sbotools: SlackBuilds.org package management
+        - slackpkg+: Enhanced package manager with third-party repo support
 
-For more information, visit:
-https://github.com/tedaford/slackware_extended
+        For more information, visit:
+        https://github.com/tedaford/slackware_extended
 
-Installation instructions are the same as standard Slackware.
-Additional packages can be found in the /extra directory.
-EOF
-        
+        Installation instructions are the same as standard Slackware.
+        Additional packages can be found in the /extra directory.
+        EOF
+
     - name: Generate ISO metadata
       run: |
-        ISO_NAME="${{ github.event.inputs.iso_name || 'slackware-extended-current' }}"
+        ISONAME="${{ github.event.inputs.iso_name || 'slackware-extended-current' }}"
         BUILD_DATE=$(date +%Y%m%d)
-        
+
         cat > iso-work/MANIFEST.TXT << EOF
-Slackware Extended ISO
-Build Date: $(date -u)
-Version: current-${BUILD_DATE}
-Architecture: x86_64
-Repository: https://github.com/tedaford/slackware_extended
-EOF
-        
-        echo "ISO_NAME=${ISO_NAME}-${BUILD_DATE}" >> $GITHUB_ENV
-        
+        Slackware Extended ISO
+        Build Date: $(date -u)
+        Version: current-${BUILD_DATE}
+        Architecture: x86_64
+        Repository: https://github.com/tedaford/slackware_extended
+        EOF
+
+        echo "ISO_NAME=${ISONAME}-${BUILD_DATE}" >> $GITHUB_ENV
+
     - name: Create ISO image
       run: |
         echo "Creating ISO image..."
-        
+
         # Create a basic ISO structure
-        # Note: For a bootable ISO, you would need the full Slackware isolinux setup
+        # Note: For bootable ISO, need full Slackware isolinux setup
         genisoimage -o ${ISO_NAME}.iso \
           -V "SLACKWARE_EXTENDED" \
           -A "Slackware Extended Current x86_64" \
@@ -108,14 +109,14 @@ EOF
           -publisher "https://github.com/tedaford/slackware_extended" \
           -r -J -joliet-long \
           iso-work/
-          
+
         # Generate checksums
         md5sum ${ISO_NAME}.iso > ${ISO_NAME}.iso.md5
         sha256sum ${ISO_NAME}.iso > ${ISO_NAME}.iso.sha256
-        
+
         echo "ISO created successfully!"
         ls -lh ${ISO_NAME}.iso*
-        
+
     - name: Upload ISO as artifact
       uses: actions/upload-artifact@v4
       with:
@@ -125,7 +126,7 @@ EOF
           *.iso.md5
           *.iso.sha256
         retention-days: 30
-        
+
     - name: Create Release
       if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
       uses: softprops/action-gh-release@v1
@@ -134,21 +135,22 @@ EOF
         name: Slackware Extended Build ${{ env.ISO_NAME }}
         body: |
           # Slackware Extended ISO Build
-          
+
           Build Date: ${{ github.event.repository.updated_at }}
           Version: slackware64-current
           Architecture: x86_64
-          
+
           ## Included Extra Packages
           - sbotools - SlackBuilds.org package management tools
           - slackpkg+ - Enhanced package manager
-          
+
           ## Checksums
           See the .md5 and .sha256 files for verification.
-          
+
           ## Publishing to Archive.org
-          This ISO will be published to archive.org for long-term archival and public access.
-          
+          This ISO will be published to archive.org for long-term
+          archival and public access.
+
         files: |
           *.iso
           *.iso.md5

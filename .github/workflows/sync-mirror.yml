@@ -10,23 +10,23 @@ on:
 jobs:
   sync-mirror:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y rsync wget
-        
+
     - name: Sync Slackware-current mirror
       run: |
         echo "Starting mirror sync..."
         bash scripts/sync-mirror.sh
       env:
         LOCAL_MIRROR_DIR: ./mirror/slackware64-current
-        
+
     - name: Add extra packages
       run: |
         echo "Adding extra packages..."
@@ -34,7 +34,7 @@ jobs:
       env:
         EXTRA_PACKAGES_DIR: ./extra-packages
         MIRROR_DIR: ./mirror/slackware64-current
-        
+
     - name: Generate mirror statistics
       run: |
         echo "## Mirror Statistics" > mirror-stats.txt
@@ -42,17 +42,19 @@ jobs:
         echo "Last Updated: $(date -u)" >> mirror-stats.txt
         echo "" >> mirror-stats.txt
         if [ -d ./mirror/slackware64-current ]; then
-          echo "Mirror Size: $(du -sh ./mirror/slackware64-current | cut -f1)" >> mirror-stats.txt
-          echo "Package Count: $(find ./mirror/slackware64-current -name '*.t?z' | wc -l)" >> mirror-stats.txt
+          echo "Mirror Size: $(du -sh ./mirror/slackware64-current \
+            | cut -f1)" >> mirror-stats.txt
+          echo "Package Count: $(find ./mirror/slackware64-current \
+            -name '*.t?z' | wc -l)" >> mirror-stats.txt
         fi
         cat mirror-stats.txt
-        
+
     - name: Create release info
       run: |
         echo "Mirror synchronized successfully on $(date -u)" > MIRROR_STATUS.txt
         echo "Version: slackware64-current" >> MIRROR_STATUS.txt
         echo "Architecture: x86_64" >> MIRROR_STATUS.txt
-        
+
     - name: Upload mirror status
       uses: actions/upload-artifact@v4
       with:
