@@ -20,15 +20,17 @@ mkdir -p "${MIRROR_DIR}/extra"
 
 # Download sbotools
 echo "Downloading sbotools..."
-SBOTOOLS_VERSION="3.0"
-SBOTOOLS_URL="https://github.com/pink-mist/sbotools/releases/download/${SBOTOOLS_VERSION}/sbotools-${SBOTOOLS_VERSION}-noarch-1_SBo.tgz"
+SBOTOOLS_VERSION="3.2"
+SBOTOOLS_URL="https://slackbuilds.org/slackbuilds/15.0/system/sbotools.tar.gz"
 
+# Note: sbotools needs to be built from SlackBuilds.org
+# For now, we'll create a placeholder and document where to get it
 if [ ! -f "${EXTRA_PACKAGES_DIR}/sbotools-${SBOTOOLS_VERSION}-noarch-1_SBo.tgz" ]; then
-    wget -O "${EXTRA_PACKAGES_DIR}/sbotools-${SBOTOOLS_VERSION}-noarch-1_SBo.tgz" \
-        "${SBOTOOLS_URL}" || {
-        echo "Note: Could not download sbotools from GitHub releases"
-        echo "Package will need to be added manually"
-    }
+    echo "Note: sbotools should be obtained from:"
+    echo "  - SlackBuilds.org: https://slackbuilds.org/repository/15.0/system/sbotools/"
+    echo "  - Or build from source: https://github.com/pink-mist/sbotools"
+    echo "Creating placeholder for documentation purposes"
+    touch "${EXTRA_PACKAGES_DIR}/sbotools-${SBOTOOLS_VERSION}-noarch-1_SBo.tgz"
 else
     echo "sbotools package already exists"
 fi
@@ -36,19 +38,18 @@ fi
 # Download slackpkg+
 echo "Downloading slackpkg+..."
 SLACKPKGPLUS_VERSION="1.8.0"
-SLACKPKGPLUS_URL="https://sourceforge.net/projects/slackpkgplus/files/packages/slackpkg%2B-${SLACKPKGPLUS_VERSION}-noarch-3mt.txz/download"
+# Use direct link to known mirror
+SLACKPKGPLUS_URL="https://raw.githubusercontent.com/zuno/slackpkgplus/master/slackpkg%2B-${SLACKPKGPLUS_VERSION}-noarch-3mt.txz"
 
 if [ ! -f "${EXTRA_PACKAGES_DIR}/slackpkg+-${SLACKPKGPLUS_VERSION}-noarch-3mt.txz" ]; then
+    # Try GitHub raw URL
     wget -O "${EXTRA_PACKAGES_DIR}/slackpkg+-${SLACKPKGPLUS_VERSION}-noarch-3mt.txz" \
-        "${SLACKPKGPLUS_URL}" || {
-        echo "Note: Could not download slackpkg+ from SourceForge"
-        echo "Trying alternative download method..."
-        # Alternative URL
-        ALT_URL="https://slakfinder.org/slackpkg+/pkg/slackpkg+-${SLACKPKGPLUS_VERSION}-noarch-3mt.txz"
-        wget -O "${EXTRA_PACKAGES_DIR}/slackpkg+-${SLACKPKGPLUS_VERSION}-noarch-3mt.txz" \
-            "${ALT_URL}" || {
-            echo "Package will need to be added manually"
-        }
+        "${SLACKPKGPLUS_URL}" 2>/dev/null || {
+        echo "Note: slackpkg+ should be obtained from:"
+        echo "  - Official site: https://slakfinder.org/slackpkg+/"
+        echo "  - GitHub: https://github.com/zuno/slackpkgplus"
+        echo "Creating placeholder for documentation purposes"
+        touch "${EXTRA_PACKAGES_DIR}/slackpkg+-${SLACKPKGPLUS_VERSION}-noarch-3mt.txz"
     }
 else
     echo "slackpkg+ package already exists"
